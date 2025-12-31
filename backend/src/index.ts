@@ -16,21 +16,34 @@ app.get("/health", (req, res) => {
   res.json({ message: "Mini User Management API", status: "running" });
 });
 
-// Routes (MUST be before listen!)
+// Home route
+app.get('/', (req, res) => {
+  res.json({ message: 'Mini User Management API', status: 'running' });
+});
+
+// Routes
 app.use("/api/auth", authRoutes);
 app.use("/api", userRoutes);
 
 const MONGO_URI = process.env.MONGO_URI!;
 const PORT = process.env.PORT || 4000;
 
+// Connect to MongoDB
 mongoose
   .connect(MONGO_URI)
   .then(() => {
-    console.log("MongoDB connected");
-    app.listen(PORT, () => {
-      console.log(`Server running on port ${PORT}`);
-    });
+    console.log('MongoDB connected');
   })
   .catch((err) => {
-    console.error("MongoDB connection error", err);
+    console.error('MongoDB connection error', err);
   });
+
+// For local development only
+if (process.env.NODE_ENV !== 'production') {
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+  });
+}
+
+// Export for Vercel serverless
+export default app;
